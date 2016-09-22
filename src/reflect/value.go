@@ -870,9 +870,29 @@ func (v Value) Index(i int) Value {
 	panic(&ValueError{"reflect.Value.Index", v.kind()})
 }
 
+// Int returns v's underlying value, as an int.
+// It panics if v's Kind is not Int, Int8, Int16, Int32, or Int64.
+func (v Value) Int() int {
+	k := v.kind()
+	p := v.ptr
+	switch k {
+	case Int:
+		return *(*int)(p)
+	case Int8:
+		return int(*(*int8)(p))
+	case Int16:
+		return int(*(*int16)(p))
+	case Int32:
+		return int(*(*int32)(p))
+	case Int64:
+		return int(*(*int64)(p))
+	}
+	panic(&ValueError{"reflect.Value.Int", v.kind()})
+}
+
 // Int returns v's underlying value, as an int64.
 // It panics if v's Kind is not Int, Int8, Int16, Int32, or Int64.
-func (v Value) Int() int64 {
+func (v Value) Int64() int64 {
 	k := v.kind()
 	p := v.ptr
 	switch k {
@@ -887,9 +907,8 @@ func (v Value) Int() int64 {
 	case Int64:
 		return *(*int64)(p)
 	}
-	panic(&ValueError{"reflect.Value.Int", v.kind()})
+	panic(&ValueError{"reflect.Value.Int64", v.kind()})
 }
-
 // CanInterface reports whether Interface can be used without panicking.
 func (v Value) CanInterface() bool {
 	if v.flag == 0 {
@@ -1398,11 +1417,31 @@ func (v Value) SetFloat(x float64) {
 
 // SetInt sets v's underlying value to x.
 // It panics if v's Kind is not Int, Int8, Int16, Int32, or Int64, or if CanSet() is false.
-func (v Value) SetInt(x int64) {
+func (v Value) SetInt(x int) {
 	v.mustBeAssignable()
 	switch k := v.kind(); k {
 	default:
 		panic(&ValueError{"reflect.Value.SetInt", v.kind()})
+	case Int:
+		*(*int)(v.ptr) = x
+	case Int8:
+		*(*int8)(v.ptr) = int8(x)
+	case Int16:
+		*(*int16)(v.ptr) = int16(x)
+	case Int32:
+		*(*int32)(v.ptr) = int32(x)
+	case Int64:
+		*(*int64)(v.ptr) = int64(x)
+	}
+}
+
+// SetInt sets v's underlying value to x.
+// It panics if v's Kind is not Int, Int8, Int16, Int32, or Int64, or if CanSet() is false.
+func (v Value) SetInt64(x int64) {
+	v.mustBeAssignable()
+	switch k := v.kind(); k {
+	default:
+		panic(&ValueError{"reflect.Value.SetInt64", v.kind()})
 	case Int:
 		*(*int)(v.ptr) = int(x)
 	case Int8:
